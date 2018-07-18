@@ -16,8 +16,8 @@ public class Main{
         InverseK ik = new InverseK(L);
 
         coord_cartesian[0] = 0;
-        coord_cartesian[1] = 10;
-        coord_cartesian[2] = 10;
+        coord_cartesian[1] = 0;
+        coord_cartesian[2] = 0;
         angulos = ik.getAngles(coord_cartesian);
 
         cartesiano   = fk.getCartesian(new double[]{0,0,0});
