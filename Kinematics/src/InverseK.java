@@ -2,40 +2,36 @@
 import static java.lang.Math.*;
 public class InverseK {
 
-    private double Long_arm[];
+    private double L[];
 
 
     public InverseK(double[] long_arm) {
-        Long_arm = long_arm;
+        this.L = long_arm;
     }
 
 
     public double[] getAngles(double coord[]) {
+        double x= coord[0];
+        double y= coord[1];
+        double z= coord[2];
+
+
+        System.out.println("\nX " +x+ " Y "+ y + " Z "+ z);
+
+
+        double gamma =  atan2(y,x);
+        double c3 = (x*x + y*y + z*z  - ( L[0]*L[0] + L[1]*L[1] + L[2]*L[2] ) - 2*L[0]*(z-L[0]))/(2*L[1]*L[2]);
+        double s3 = Math.sqrt(1-c3);
+        double beta = atan2(s3,c3);
+        double alpha =  atan2(( (z-L[0])*(cos(gamma) - sin(gamma)) ),(x-y)) - atan2((s3*L[2]),(c3*L[2]+L[1]));
 
         double Q[] = new double[3];
-
-
-        System.out.println("\nX " + coord[0]+ " Y "+ coord[1] + " Z "+ coord[2]);
-
-        double r = Math.sqrt(Math.pow(coord[0],2)+Math.pow(coord[1],2));
-
-
-
-        double gamma =  atan2(coord[1], coord[0]);
-        double v = Math.toRadians((Math.pow(coord[2]-Long_arm[0],2) + Math.pow(coord[0],2) +  Math.pow(coord[1],2) - Math.pow(Long_arm[2],2) - Math.pow(Long_arm[1],2) )
-                / (2*Long_arm[1]*Long_arm[2]) );
-        System.out.println("Valor "+v);
-        double beta =  acos(v);
-
-        double alpha =  (atan2(r,coord[2]-Long_arm[0]) - atan2(Long_arm[1] + Long_arm[2]* cos(beta),Long_arm[2]*sin(beta)));
-
-
         Q[0] = gamma;
         Q[1] = alpha;
         Q[2] = beta;
 
         /** Salidas en de angulos en radianes **/
-        System.out.println("Q[0]  "+Q[0] + " Q[1] " +Q[1] + " Q[2] "+Q[2] );
+        //System.out.println("Q[0]  "+Q[0] + " Q[1] " +Q[1] + " Q[2] "+Q[2] );
 
         return Q;
     }

@@ -43,11 +43,12 @@ public class ForwardK {
 
         if (q.length < 3) return null;
 
-        double x = (L[1] * cos(Q[1]) + L[2] * cos(Q[1] + Q[2])) * sin(Q[0]);//ok
+        double x = ( L[2] * cos(Q[1] + Q[2]) + L[1] * cos(Q[1]) ) * cos(Q[0]);//ok
 
-        double y = (L[1] * cos(Q[1]) + L[2] * cos(Q[1] + Q[2])) * cos(Q[0]);//ok
 
-        double z = L[1] * sin(Q[1]) + L[2] * sin(Q[1] + Q[2]) + L[0];//ok
+        double y = ( L[2] * cos(Q[1] + Q[2]) + L[1] * cos(Q[1]) ) * sin(Q[0]);//ok
+
+        double z =   L[2] * sin(Q[1] + Q[2]) + L[1] * sin(Q[1])  + L[0];//ok
 
         double cartesian[] = new double[3];
         cartesian[0] = x;
