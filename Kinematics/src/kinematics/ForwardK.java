@@ -38,13 +38,18 @@ public class ForwardK {
      * @param q
      * @return
      */
-    public double[] getCartesian(double[] q) {
+    public double[] getCartesian(double[] q,boolean isRadian) {
         Q = q;
 
         if (q.length < 3) return null;
 
-        double x = ( L[2] * cos(Q[1] + Q[2]) + L[1] * cos(Q[1]) ) * cos(Q[0]);//ok
+        if(!isRadian){
+            Q[0] = Math.toDegrees(Q[0]);
+            Q[1] = Math.toDegrees(Q[1]);
+            Q[2] = Math.toDegrees(Q[2]);
+        }
 
+        double x = ( L[2] * cos(Q[1] + Q[2]) + L[1] * cos(Q[1]) ) * cos(Q[0]);//ok
 
         double y = ( L[2] * cos(Q[1] + Q[2]) + L[1] * cos(Q[1]) ) * sin(Q[0]);//ok
 

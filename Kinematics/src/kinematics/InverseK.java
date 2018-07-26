@@ -31,6 +31,14 @@ public class InverseK {
         Q[1] = alpha;
         Q[2] = beta;
 
+
+        /**
+         * Q[0] = atan2(coord.getX(),coord.getY());
+         * Q[2] = -PI +  acos(( pow(d,2) - pow(L[2],2) - pow(L[1],2) )/(2*L[1]*L[2]));
+         * Q[1] =  atan2(r,coord.getZ()-L[0]) - atan2(L[1] + L[2]*cos(Q[2]),L[2]*sin(Q[2]));
+         */
+
+
         /** Salidas en de angulos en radianes **/
         //System.out.println("Q[0]  "+Q[0] + " Q[1] " +Q[1] + " Q[2] "+Q[2] );
 
