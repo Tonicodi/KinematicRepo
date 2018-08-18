@@ -1,9 +1,9 @@
-package Utils;
+package utils;
      public enum PRECISION{
-        LOW       (1),
-        MEDIUM    (0.5),
-        HIGH      (0.1),
-        VERY_HIGH (0.05);
+        LOW       (Math.toRadians(5)),
+        MEDIUM    (Math.toRadians(2.5)),
+        HIGH      (Math.toRadians(1)),
+        VERY_HIGH (Math.toRadians(0.5));
 
          private final double value;
 
