@@ -101,13 +101,13 @@ public class Input {
     public boolean saveInputs(ArrayList<double[][]> inputs,String path){
         //escribir en el archivo .dat ubicado en / del proyecto
         try {
-            PrintWriter fout = new PrintWriter(new FileWriter("prueba2018.txt"));
+            PrintWriter fout = new PrintWriter(new FileWriter(path));
 
             for(int i = 0; i < inputs.size(); ++i) {
 
                 fout.println( inputs.get(i)[0][0] + ";" + inputs.get(i)[0][1] + ";" +
-                        String.format("%.4f",inputs.get(0)[1][0])+ ";" +
-                        String.format("%.4f",inputs.get(0)[1][1]));
+                        inputs.get(i)[1][0]+ ";" +
+                        inputs.get(i)[1][1]);
             }
             fout.close();
             return true;
