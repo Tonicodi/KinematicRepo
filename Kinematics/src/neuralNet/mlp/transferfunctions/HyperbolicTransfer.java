@@ -1,7 +1,7 @@
 package neuralNet.mlp.transferfunctions;
 
 
-import mlp.mlp.TransferFunction;
+import neuralNet.mlp.TransferFunction;
 
 public class HyperbolicTransfer implements TransferFunction
 {

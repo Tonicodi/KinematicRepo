@@ -2,6 +2,9 @@ package neuralNet;
 
 import utils.PRECISION;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -93,6 +96,25 @@ public class Input {
             System.out.println();
         }
         return normalizedInputs;
+    }
+
+    public boolean saveInputs(ArrayList<double[][]> inputs,String path){
+        //escribir en el archivo .dat ubicado en / del proyecto
+        try {
+            PrintWriter fout = new PrintWriter(new FileWriter("prueba2018.txt"));
+
+            for(int i = 0; i < inputs.size(); ++i) {
+
+                fout.println( inputs.get(i)[0][0] + ";" + inputs.get(i)[0][1] + ";" +
+                        String.format("%.4f",inputs.get(0)[1][0])+ ";" +
+                        String.format("%.4f",inputs.get(0)[1][1]));
+            }
+            fout.close();
+            return true;
+        } catch (IOException var16) {
+            var16.printStackTrace();
+            return false;
+        }
     }
 
     static double Normalize(double value, double min, double max)
