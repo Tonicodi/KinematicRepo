@@ -19,7 +19,7 @@ public class Input {
     double L[];// longitud del brazo
     PRECISION Precision;
     double Q1start,Q1end,Q2start,Q2end;
-    ArrayList<Double[]> inputs;
+
     public Input(double[] l,PRECISION precision,boolean isRadian, double q1start, double q1end, double q2start, double q2end) {
         L = l;
         Precision = precision;

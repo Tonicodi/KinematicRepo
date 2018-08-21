@@ -17,7 +17,7 @@ public class InverseK {
         double z= coord[2];
 
 
-        System.out.println("\nX " +x+ " Y "+ y + " Z "+ z);
+        //System.out.println("\nX " +x+ " Y "+ y + " Z "+ z);
 
 
         double gamma =  atan2(y,x);
