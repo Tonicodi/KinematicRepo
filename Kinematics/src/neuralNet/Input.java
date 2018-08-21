@@ -1,5 +1,6 @@
 package neuralNet;
 
+import utils.Numerics;
 import utils.PRECISION;
 
 import java.io.FileWriter;
@@ -83,13 +84,13 @@ public class Input {
         double Xnormalized,Ynormalized,Q1Normalized,Q2Normalized;
 
         for(int i=0;i<inputs.size();i++){
-            Xnormalized  = Normalize( inputs.get(i)[0][0] , GlobalInputMin,GlobalInputMax   );
-            Ynormalized  = Normalize( inputs.get(i)[0][1] , GlobalInputMin,GlobalInputMax   );
+            Xnormalized  = Numerics.decimals( Normalize( inputs.get(i)[0][0] , GlobalInputMin,GlobalInputMax ) , 6);
+            Ynormalized  = Numerics.decimals( Normalize( inputs.get(i)[0][1] , GlobalInputMin,GlobalInputMax ) , 6);
 
-            Q1Normalized = Normalize( inputs.get(i)[1][1] , GlobalOutputMin,GlobalOutputMax );
-            Q2Normalized = Normalize( inputs.get(i)[1][1] , GlobalOutputMin,GlobalOutputMax );
+            Q1Normalized = Numerics.decimals( Normalize( inputs.get(i)[1][1] , GlobalOutputMin,GlobalOutputMax ), 6);
+            Q2Normalized = Numerics.decimals( Normalize( inputs.get(i)[1][1] , GlobalOutputMin,GlobalOutputMax ), 6);
 
-            normalizedInputs.add(new double[][]{ {Xnormalized,Ynormalized} , {Q1Normalized,Q2Normalized} });
+            normalizedInputs.add( new double[][]{ {Xnormalized,Ynormalized} , {Q1Normalized,Q2Normalized} });
 
             System.out.println("X normalized  "+Xnormalized+" Y normalized "+Ynormalized);
             System.out.println("Q1 normalized "+Q1Normalized+" Q2 "+Q2Normalized);
@@ -121,5 +122,12 @@ public class Input {
     {
         return (value - min) / (max - min);
     }
+
+    static double Inverse(double value, double min, double max)
+    {
+        return value * (max - min) + min;
+    }
+
+
 
 }
