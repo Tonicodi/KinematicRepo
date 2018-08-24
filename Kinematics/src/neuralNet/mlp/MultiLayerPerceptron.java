@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 
 public class MultiLayerPerceptron
 {
@@ -27,6 +29,7 @@ public class MultiLayerPerceptron
 
         fLayers = new Layer[layers.length];
 
+
         for(int i = 0; i < layers.length; i++)
         {
             if(i != 0)
@@ -38,6 +41,9 @@ public class MultiLayerPerceptron
                 fLayers[i] = new Layer(layers[i], 0);
             }
         }
+
+
+        System.out.println("Longitud flayrs "+fLayers[0].Length);
     }
 
 
@@ -74,16 +80,16 @@ public class MultiLayerPerceptron
 
                 new_value += fLayers[k].Neurons[i].Bias;
 
-                fLayers[k].Neurons[i].Value = fTransferFunction.evalute(new_value);
+                fLayers[k].Neurons[i].Value = fTransferFunction.evaluate(new_value);
             }
         }
-
 
         // Get output
         for(i = 0; i < fLayers[fLayers.length - 1].Length; i++)
         {
             output[i] = fLayers[fLayers.length - 1].Neurons[i].Value;
         }
+        //System.out.println(Arrays.toString(output));
 
         return output;
     }
@@ -114,7 +120,7 @@ public class MultiLayerPerceptron
         for(i = 0; i < fLayers[fLayers.length - 1].Length; i++)
         {
             error = output[i] - new_output[i];
-            fLayers[fLayers.length - 1].Neurons[i].Delta = error * fTransferFunction.evaluteDerivate(new_output[i]);
+            fLayers[fLayers.length - 1].Neurons[i].Delta = error * fTransferFunction.evaluateDerivate(new_output[i]);
         }
 
 
@@ -127,7 +133,7 @@ public class MultiLayerPerceptron
                 for(j = 0; j < fLayers[k + 1].Length; j++)
                     error += fLayers[k + 1].Neurons[j].Delta * fLayers[k + 1].Neurons[j].Weights[i];
 
-                fLayers[k].Neurons[i].Delta = error * fTransferFunction.evaluteDerivate(fLayers[k].Neurons[i].Value);
+                fLayers[k].Neurons[i].Delta = error * fTransferFunction.evaluateDerivate(fLayers[k].Neurons[i].Value);
             }
 
             // Asigna pesos y multiplica por el valor sucesivo

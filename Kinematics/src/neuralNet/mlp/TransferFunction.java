@@ -8,7 +8,7 @@ public interface TransferFunction
      * @param value Valor de entrada
      * @return Valor de la funcion
      */
-    public double evalute(double value);
+    public double evaluate(double value);
 
 
     /**
@@ -16,5 +16,5 @@ public interface TransferFunction
      * @param value Valor de entrada
      * @return Valor de la función derivada
      */
-    public double evaluteDerivate(double value);
+    public double evaluateDerivate(double value);
 }

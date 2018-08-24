@@ -7,15 +7,22 @@ public class HyperbolicTransfer implements TransferFunction
 {
 
     @Override
-    public double evalute(double value)
+    public double evaluate(double value)
     {
         return Math.tanh(value);
     }
 
-    @Override
-    public double evaluteDerivate(double value)
+    /*@Override
+    public double evaluateDerivate(double value)
     {
         return 1 - Math.pow(value, 2);
+    }
+    */
+
+    @Override
+    public double evaluateDerivate(double value)
+    {
+        return 1 - Math.pow(value,2);
     }
 
 }

@@ -3,12 +3,11 @@ package neuralNet;
 import utils.Numerics;
 import utils.PRECISION;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
@@ -29,88 +28,94 @@ public class Input {
         Q2end     = (!isRadian)?q2end*PI/180.0:q2end;
     }
 
-    public ArrayList<double[][]> getInputs(){
-        double Xmin=1000,Xmax=-1000,Ymin=1000,Ymax=-1000;
-        double GlobalInputMin,GlobalInputMax,GlobalOutputMin,GlobalOutputMax;
-        ArrayList<double[][]> inputList = new ArrayList<>();
-        double x=0,y=0;
-        for(double i=Q1start;i<=Q1end;i+= Precision.getValue()){
-            for(double j=Q2start;j<=Q2end;j+= Precision.getValue()){
+    public ArrayList<double[][]>[] getInputs(){
+        //almacenan los minimos y maximos, esto para normalizar
+        double Xmin=1000,Xmax=-1000,Ymin=1000,Ymax=-1000,Qmin,Qmax;
 
-                x =  L[2] * cos(i + j) + L[1] * cos(i) ;
-                y =  L[2] * sin(i + j) + L[1] * sin(i)  + L[0];
+        //arreglo de ArraysList
+        ArrayList<double[][]> inputList[] = new ArrayList[2];
 
-                Xmin = (x<Xmin)?x:Xmin;
-                Xmax = (x>Xmax)?x:Xmax;
-                Ymin = (y<Ymin)?y:Ymin;
-                Ymax = (y>Ymax)?y:Ymax;
+        inputList[0] = new ArrayList<>();
+        inputList[1] = new ArrayList<>();
 
-                inputList.add(new double[][]{ {x,y},{i,j} });
-                System.out.println("Q1 "+Math.toDegrees(i)+" Q2 "+Math.toDegrees(j)+" X "+x+" Y "+y);
-            }
-            System.out.println();
+        //obtener datos para entradas en EQ
+        Qmin = Collections.min(Arrays.asList(new Double[]{Q1start, Q1end, Q2start, Q2end}));
+        Qmax = Collections.max(Arrays.asList(new Double[]{Q1start, Q1end, Q2start, Q2end}));
+
+        //valores que almacenan las evaluaciones
+        double x,y;
+        int c=0;
+
+        for(double i=Qmin;i<=Qmax;i+= Precision.getValue()){
+            x =  L[2] * cos(i) + L[1] * cos(i) ;
+            y =  L[2] * sin(i) + L[1] * sin(i)  + L[0];
+
+            Xmin = (x<Xmin)?x:Xmin;
+            Xmax = (x>Xmax)?x:Xmax;
+            Ymin = (y<Ymin)?y:Ymin;
+            Ymax = (y>Ymax)?y:Ymax;
+
+            inputList[0].add(new double[][]{ {x},{i} });
+            inputList[1].add(new double[][]{ {y},{i} });
+            System.out.println("value "+c+" X "+x+" Y "+y+" Q degree : "+Math.toDegrees(i)+" Q radian "+i);
+            c++;
         }
         //guardar el minimo y maximo global en la primera posicion del arreglo de entradas
-        GlobalInputMin = (Ymin<Xmin)?Ymin:Xmin;
-        GlobalInputMax = (Ymax>Xmax)?Ymax:Xmax;
 
-        GlobalOutputMin = Collections.min(Arrays.asList(new Double[]{Q1start, Q1end, Q2start, Q2end}));
-        GlobalOutputMax = Collections.max(Arrays.asList(new Double[]{Q1start, Q1end, Q2start, Q2end}));
-
-        inputList.add(0,new double[][]{ {GlobalInputMax,GlobalInputMin} , {GlobalOutputMax,GlobalOutputMin} });
+        inputList[0].add(0,new double[][]{ {Xmax,Xmin} , {Qmax,Qmin} });
+        inputList[1].add(0,new double[][]{ {Ymax,Ymin} , {Qmax,Qmin} });
 
         System.out.println("Xmax "+ Xmax+" Xmin "+Xmin);
         System.out.println("Ymax "+ Ymax+" Ymin "+Ymin);
-        System.out.println("Global input Max "+GlobalInputMax+" Global input Min "+GlobalInputMin);
-        System.out.println("Global output Max "+GlobalOutputMax+" Global output Min "+GlobalOutputMin);
+        System.out.println("Global Q Max "+Qmax+" Global Q Min "+Qmin);
 
         return inputList;
     }
 
-    public ArrayList<double[][]> normalizeInputs(ArrayList<double[][]> inputs){
+    public ArrayList<double[][]> normalizeInputs(ArrayList<double[][]> inputs,double new_min,double new_max){
 
         ArrayList<double[][]> normalizedInputs = new ArrayList<>();
 
         //obtener los minimos y maximos
-        double GlobalInputMin,GlobalInputMax,GlobalOutputMin,GlobalOutputMax;
-        GlobalInputMax  = inputs.get(0)[0][0];
-        GlobalInputMin  = inputs.get(0)[0][1];
+        double Vmin,Vmax,Qmin,Qmax;
+        Vmax  = inputs.get(0)[0][0];
+        Vmin  = inputs.get(0)[0][1];
 
-        GlobalOutputMax = inputs.get(0)[1][0];
-        GlobalOutputMin = inputs.get(0)[1][1];
+        Qmax  = inputs.get(0)[1][0];
+        Qmin  = inputs.get(0)[1][1];
+
         //limpiar de las entradas
         inputs.remove(0);
 
-        double Xnormalized,Ynormalized,Q1Normalized,Q2Normalized;
+        double Vnormalized,QNormalized;
 
         for(int i=0;i<inputs.size();i++){
-            Xnormalized  = Numerics.decimals( Normalize( inputs.get(i)[0][0] , GlobalInputMin,GlobalInputMax ) , 6);
-            Ynormalized  = Numerics.decimals( Normalize( inputs.get(i)[0][1] , GlobalInputMin,GlobalInputMax ) , 6);
+            Vnormalized  =  Normalize( inputs.get(i)[0][0] , Vmin,Vmax ,new_min,new_max);
 
-            Q1Normalized = Numerics.decimals( Normalize( inputs.get(i)[1][1] , GlobalOutputMin,GlobalOutputMax ), 6);
-            Q2Normalized = Numerics.decimals( Normalize( inputs.get(i)[1][1] , GlobalOutputMin,GlobalOutputMax ), 6);
+            //QNormalized =  Normalize( inputs.get(i)[1][0] , Qmin,Qmax,new_min,new_max);
 
-            normalizedInputs.add( new double[][]{ {Xnormalized,Ynormalized} , {Q1Normalized,Q2Normalized} });
+            QNormalized = inputs.get(i)[1][0];
 
-            System.out.println("X normalized  "+Xnormalized+" Y normalized "+Ynormalized);
-            System.out.println("Q1 normalized "+Q1Normalized+" Q2 "+Q2Normalized);
-            System.out.println();
+            normalizedInputs.add( new double[][]{ {Vnormalized} , {QNormalized} });
+
+            System.out.println("Value "+i+" normalized  "+Vnormalized + " Q normalized "+QNormalized);
         }
         return normalizedInputs;
     }
 
-    public boolean saveInputs(ArrayList<double[][]> inputs,String path){
+    public static boolean saveInputs(ArrayList<double[][]> inputs,String path){
         //escribir en el archivo .dat ubicado en / del proyecto
         try {
-            PrintWriter fout = new PrintWriter(new FileWriter(path));
+            PrintWriter f_input = new PrintWriter(new FileWriter("input_"+path));
+            PrintWriter f_output = new PrintWriter(new FileWriter("output_"+path));
 
             for(int i = 0; i < inputs.size(); ++i) {
 
-                fout.println( inputs.get(i)[0][0] + ";" + inputs.get(i)[0][1] + ";" +
-                        inputs.get(i)[1][0]+ ";" +
-                        inputs.get(i)[1][1]);
+                f_input.println( inputs.get(i)[0][0]);
+                f_output.println(inputs.get(i)[1][0]);
             }
-            fout.close();
+            f_input.close();
+            f_output.close();
             return true;
         } catch (IOException var16) {
             var16.printStackTrace();
@@ -118,16 +123,51 @@ public class Input {
         }
     }
 
-    static double Normalize(double value, double min, double max)
-    {
-        return (value - min) / (max - min);
+    public static ArrayList<double[]> loadFile(String path){
+        //escribir en el archivo .dat ubicado en / del proyecto
+
+        ArrayList<double[]> inputs = new ArrayList<>();
+        try {
+            Scanner s = new Scanner(new File(path));
+            while (s.hasNext()){
+                double c1 = s.nextDouble();
+                double c2 = 0;
+                if(s.hasNext()) c2 = s.nextDouble();
+                System.out.println("c1 "+c1 +" c2 "+c2 );
+                inputs.add(new double[]{ c1,c2});
+            }
+            s.close();
+            return inputs;
+        } catch (Exception var16) {
+            var16.printStackTrace();
+            return inputs;
+        }
     }
 
-    static double Inverse(double value, double min, double max)
+
+
+    public static double Normalize(double value, double min, double max,double new_min,double new_max)
+    {
+        return (value - min) / (max - min)*(new_max-new_min)+new_min;
+    }
+
+    public static double[] Normalize(double values[],double min,double max,double new_min,double new_max){
+        double data[] = new double[values.length];
+        for (int i=0;i<values.length;i++)
+            data[i] = Normalize(values[i],min,max,new_min,new_max);
+        return data;
+    }
+
+    public static double DeNormalize(double value, double min, double max)
     {
         return value * (max - min) + min;
     }
 
-
+    public static double[] DeNormalize(double values[],double min,double max){
+        double data[] = new double[values.length];
+        for (int i=0;i<values.length;i++)
+            data[i] = DeNormalize(values[i],min,max);
+        return data;
+    }
 
 }
