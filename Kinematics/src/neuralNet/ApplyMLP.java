@@ -3,9 +3,14 @@ package neuralNet;
 import neuralNet.mlp.MultiLayerPerceptron;
 import neuralNet.mlp.TransferFunction;
 
+import javax.management.Attribute;
+import javax.management.AttributeList;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.management.ManagementFactory;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +21,11 @@ public class ApplyMLP {
     int[] layers;
     double learningRate;
     TransferFunction fun;
+
+
+
+
+
 
     public ApplyMLP(int[] layers, double learningRate, TransferFunction fun){
         mlp = new MultiLayerPerceptron[2];
@@ -47,8 +57,15 @@ public class ApplyMLP {
                 for(int i=0;i<inputs.size();i++){
                     error = mlp[pos_mlp].backPropagate(inputs.get(i)[0],inputs.get(i)[1]);
                 }
-                System.out.println("Error "+error+ " Epoca "+c);
+                double cpu=0;
+                try {
+                    cpu = getProcessCpuLoad();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Error "+error+ " Epoca "+c + " uso cpu "+cpu);
                 fout.println(c+","+error);
+
                 c++;
             }
             fout.close();
@@ -83,5 +100,23 @@ public class ApplyMLP {
         }
         return data;
     }
+    public static double getProcessCpuLoad() throws Exception {
+
+        MBeanServer mbs    = ManagementFactory.getPlatformMBeanServer();
+        ObjectName name    = ObjectName.getInstance("java.lang:type=OperatingSystem");
+        AttributeList list = mbs.getAttributes(name, new String[]{ "ProcessCpuLoad" });
+
+        if (list.isEmpty())     return Double.NaN;
+
+        Attribute att = (Attribute)list.get(0);
+        Double value  = (Double)att.getValue();
+
+        // usually takes a couple of seconds before we get real values
+        if (value == -1.0)      return Double.NaN;
+        // returns a percentage value with 1 decimal point precision
+        return ((int)(value * 1000) / 10.0);
+    }
+
+
 
 }

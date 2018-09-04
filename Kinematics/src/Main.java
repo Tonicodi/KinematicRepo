@@ -8,7 +8,7 @@ public class Main{
 
     public static void main(String[] args){
 
-        double angulos[];
+        double angulos[] = new double[3];
         double[] coord_cartesian = new double[3];
         double L[]  = new double[]{28,50,60};
         //double Q[]  = new double[]{0.12,-0.57,1.220};
@@ -16,23 +16,28 @@ public class Main{
         ForwardK fk = new ForwardK(L);
         InverseK ik = new InverseK(L);
 
-        coord_cartesian[0] = 50;
-        coord_cartesian[1] = 40;
-        coord_cartesian[2] = 40;
+
+        angulos[0]= 0;
+        angulos[1]= 0;
+        angulos[2]= 0;
+
+
+        System.out.println("Angulos     or : "+Arrays.toString(angulos));
+        coord_cartesian = fk.getCartesian(angulos,false);
+        System.out.println("Coordenadas fk : "+Arrays.toString(coord_cartesian));
         angulos = ik.getAngles(coord_cartesian);
 
+        angulos[0] = Math.toDegrees(angulos[0]);
+        angulos[1] = Math.toDegrees(angulos[1]);
+        angulos[2] = Math.toDegrees(angulos[2]);
+
+        System.out.println("Angulos     ik : "+Arrays.toString(angulos));
 
 
-        System.out.println("angulos   degrees Q[0]  "+Math.toDegrees(angulos[0]) + " Q[1] " + Math.toDegrees(angulos[1]) + " Q[2] "+Math.toDegrees(angulos[2]));
+        coord_cartesian = fk.getCartesian(angulos,false);
+        System.out.println("Coordenadas fk : "+Arrays.toString(coord_cartesian));
 
-        cartesiano   = fk.getCartesian(angulos,true);
 
-        System.out.println("fk  Px  "+ Arrays.toString(cartesiano));
-
-        System.out.println("angulos  Q[0]  "+angulos[0] + " Q[1] " +angulos[1] + " Q[2] "+angulos[2]);
-        //cartesiano = fk.getCartesian(Q);
-
-        //System.out.println("test  Px  "+ Arrays.toString(cartesiano));
 
 
     }

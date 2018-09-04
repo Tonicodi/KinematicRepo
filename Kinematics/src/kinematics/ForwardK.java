@@ -47,14 +47,14 @@ public class ForwardK {
         if (q.length < 3) return null;
 
         if(!isRadian){
-            Q[0] = Math.toDegrees(Q[0]);
-            Q[1] = Math.toDegrees(Q[1]);
-            Q[2] = Math.toDegrees(Q[2]);
+            Q[0] = Math.toRadians(Q[0]);
+            Q[1] = Math.toRadians(Q[1]);
+            Q[2] = Math.toRadians(Q[2]);
         }
 
-        double x = ( L[2] * cos(Q[1] + Q[2]) + L[1] * cos(Q[1]) ) * cos(Q[0]);//ok
+        double x = ( L[2] * cos(Q[1] + Q[2]) + L[1] * cos(Q[1]) ) * sin(Q[0]);//ok
 
-        double y = ( L[2] * cos(Q[1] + Q[2]) + L[1] * cos(Q[1]) ) * sin(Q[0]);//ok
+        double y = ( L[2] * cos(Q[1] + Q[2]) + L[1] * cos(Q[1]) ) * cos(Q[0]);//ok
 
         double z =   L[2] * sin(Q[1] + Q[2]) + L[1] * sin(Q[1])  + L[0];//ok
 
