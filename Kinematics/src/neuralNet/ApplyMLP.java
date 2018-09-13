@@ -2,72 +2,112 @@ package neuralNet;
 
 import neuralNet.mlp.MultiLayerPerceptron;
 import neuralNet.mlp.TransferFunction;
+import util.Numerics;
+import utils.PRECISION;
 
-import javax.management.Attribute;
-import javax.management.AttributeList;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.lang.management.ManagementFactory;
-import java.sql.Array;
+
+import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Random;
 
-public class ApplyMLP {
+public class ApplyMLP implements Serializable {
 
-    MultiLayerPerceptron mlp[];
+    MultiLayerPerceptron mlp;
     int[] layers;
     double learningRate;
+    double errorTrain;
+    int epochs;
     TransferFunction fun;
+    ArrayList<double[]> NN_target;
+    ArrayList<double[]> NN_input;
+    PRECISION precision;
 
 
+    double Ymin= 0 ,Ymax= 110,Zmin= -32,Zmax= 138;
 
 
+    public ApplyMLP(int[] layers, double learningRate, TransferFunction fun,ArrayList<double[]> inputs,ArrayList<double[]> outputs){
 
-
-    public ApplyMLP(int[] layers, double learningRate, TransferFunction fun){
-        mlp = new MultiLayerPerceptron[2];
-
-        mlp[0] = new MultiLayerPerceptron(layers,learningRate,fun);
-        mlp[1] = new MultiLayerPerceptron(layers,learningRate,fun);
-
-        this.layers = layers;
-        this.learningRate = learningRate;
-        this.fun = fun;
+        mlp = new MultiLayerPerceptron(layers,learningRate,fun);
+        Numerics.LAYER     = layers[1];
+        this.layers        = layers;
+        this.learningRate  = learningRate;
+        this.fun           = fun;
+        this.NN_input      = inputs;
+        this.NN_target     = outputs;
     }
 
-    public ApplyMLP(String path){
-        mlp[0] = MultiLayerPerceptron.load("0"+path);
-        mlp[1] = MultiLayerPerceptron.load("1"+path);
+    public PRECISION getPrecision() {
+        return precision;
+    }
+
+    public void setPrecision(PRECISION precision) {
+        this.precision = precision;
+    }
+
+
+
+
+    /**
+     * Carga una red MLP del archivo
+     * @param path Ruta de la cual se carga la red MLP
+     * @return La red cargada o null si no se encontro
+     */
+    public static ApplyMLP load(String path)
+    {
+        try
+        {
+            ApplyMLP net;
+
+            FileInputStream fin = new FileInputStream(path);
+            ObjectInputStream oos = new ObjectInputStream(fin);
+            net = (ApplyMLP) oos.readObject();
+            oos.close();
+            return net;
+        }
+        catch (Exception e)
+        {
+            System.out.println("Error al cargar red "+e.getMessage());
+            return null;
+        }
     }
 
     public boolean saveMLP(String path){
-        return mlp[0].save("0"+path) && mlp[1].save("1"+path);
+        try
+        {
+            FileOutputStream fout = new FileOutputStream(path);
+            ObjectOutputStream oos = new ObjectOutputStream(fout);
+            oos.writeObject(this);
+            oos.close();
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+
     }
 
-    public double train(int pos_mlp,int epoch,double minError,ArrayList<double[][]> inputs){
+    public double train(int epoch){
+        Numerics.EPOCH = epoch;
+        epochs = epoch;
+
         int c=0;
         double error=1;
         PrintWriter fout = null;
         try {
             fout = new PrintWriter(new FileWriter("data_train.txt"));
             while (c<=epoch){
-                for(int i=0;i<inputs.size();i++){
-                    error = mlp[pos_mlp].backPropagate(inputs.get(i)[0],inputs.get(i)[1]);
+                double temp_error=error;
+                for(int i=0;i<NN_input.size();i++){
+                    error = mlp.backPropagate(NN_input.get(i),NN_target.get(i))/2;
                 }
-                double cpu=0;
-                try {
-                    cpu = getProcessCpuLoad();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                System.out.println("Error "+error+ " Epoca "+c + " uso cpu "+cpu);
+                error = (temp_error<error)?temp_error:error;
+                //System.out.println("Error "+error+ " Epoca "+c);
                 fout.println(c+","+error);
-
                 c++;
             }
+            errorTrain = error;
             fout.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -77,10 +117,26 @@ public class ApplyMLP {
 
     }
 
-    public double[] execute(int pos_mlp,double[] test){
-        return mlp[pos_mlp].execute(test);
-    }
+    public double[] execute(double[] test){
+        if(Numerics.isValidCoord(test)){
 
+            double Q1 =  Math.toDegrees( Math.atan2(test[0],test[1]) );
+            //Normalizando las entradas a la red neuronal
+            double input_ANN[] = { Input.Normalize( test[1], Ymin,Ymax), Input.Normalize( test[2], Zmin,Zmax) };
+            //obtengo angulos de la red neuronal
+            double Angles_ANN[] = mlp.execute(input_ANN);
+            //denormalizando los angulos
+            Angles_ANN[0] = Input.DeNormalize(Angles_ANN[0],0,90);
+            Angles_ANN[1] = Input.DeNormalize(Angles_ANN[1],-90,0);
+            //hago un vector donde esten todos los angulos de normalizados
+            double angles[] = {  Q1, Angles_ANN[0],Angles_ANN[1]  };
+
+            return Numerics.roundDecimals( angles );
+        }else{
+            //en caso de que no sea valido retorna null
+            return null;
+        }
+    }
 
 
     public static double[][] getArrayInputs(ArrayList<double[][]> inputs){
@@ -100,23 +156,21 @@ public class ApplyMLP {
         }
         return data;
     }
-    public static double getProcessCpuLoad() throws Exception {
 
-        MBeanServer mbs    = ManagementFactory.getPlatformMBeanServer();
-        ObjectName name    = ObjectName.getInstance("java.lang:type=OperatingSystem");
-        AttributeList list = mbs.getAttributes(name, new String[]{ "ProcessCpuLoad" });
 
-        if (list.isEmpty())     return Double.NaN;
-
-        Attribute att = (Attribute)list.get(0);
-        Double value  = (Double)att.getValue();
-
-        // usually takes a couple of seconds before we get real values
-        if (value == -1.0)      return Double.NaN;
-        // returns a percentage value with 1 decimal point precision
-        return ((int)(value * 1000) / 10.0);
+    public int[] getLayers() {
+        return layers;
     }
 
+    public double getLearningRate() {
+        return learningRate;
+    }
 
+    public double getErrorTrain() {
+        return errorTrain;
+    }
 
+    public int getEpochs() {
+        return epochs;
+    }
 }

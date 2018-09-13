@@ -3,7 +3,9 @@ package neuralNet.mlp.transferfunctions;
 
 import neuralNet.mlp.TransferFunction;
 
-public class HyperbolicTransfer implements TransferFunction
+import java.io.Serializable;
+
+public class HyperbolicTransfer implements TransferFunction,Serializable
 {
 
     @Override

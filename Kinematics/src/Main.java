@@ -1,5 +1,7 @@
 import kinematics.ForwardK;
 import kinematics.InverseK;
+import util.Numerics;
+
 
 import java.util.Arrays;
 
@@ -16,8 +18,7 @@ public class Main{
         ForwardK fk = new ForwardK(L);
         InverseK ik = new InverseK(L);
 
-
-        angulos[0]= 0;
+        angulos[0]= 45;
         angulos[1]= 0;
         angulos[2]= 0;
 
@@ -33,12 +34,11 @@ public class Main{
 
         System.out.println("Angulos     ik : "+Arrays.toString(angulos));
 
-
         coord_cartesian = fk.getCartesian(angulos,false);
         System.out.println("Coordenadas fk : "+Arrays.toString(coord_cartesian));
 
 
-
+        Numerics.isValidCoord(new double[]{20,20,20});
 
     }
 }

@@ -3,7 +3,9 @@ package neuralNet.mlp.transferfunctions;
 
 import neuralNet.mlp.TransferFunction;
 
-public class SigmoidalTransfer implements TransferFunction
+import java.io.Serializable;
+
+public class SigmoidalTransfer implements TransferFunction,Serializable
 {
     @Override
     public double evaluate(double value)

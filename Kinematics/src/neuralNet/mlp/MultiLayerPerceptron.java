@@ -1,14 +1,11 @@
 package neuralNet.mlp;
 
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
-public class MultiLayerPerceptron
+public class MultiLayerPerceptron implements Serializable
 {
     protected double			fLearningRate = 0.6;
     protected Layer[]			fLayers;
@@ -95,8 +92,6 @@ public class MultiLayerPerceptron
     }
 
 
-
-
     /**
      * Algoritmo de backpropagation para el aprendizaje supervisado
      * (Version un solo hilo)
@@ -159,57 +154,6 @@ public class MultiLayerPerceptron
         error = error / output.length;
         return error;
     }
-
-
-    /**
-     * Guarda una red MLP en un archivo
-     *
-     * @param path Path el cual es la ruta donde se guardara la red MLP
-     * @return true si se guarda correctamente
-     */
-    public boolean save(String path)
-    {
-        try
-        {
-            FileOutputStream fout = new FileOutputStream(path);
-            ObjectOutputStream oos = new ObjectOutputStream(fout);
-            oos.writeObject(this);
-            oos.close();
-        }
-        catch (Exception e)
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-
-    /**
-     * Carga una red MLP del archivo
-     * @param path Ruta de la cual se carga la red MLP
-     * @return La red cargada o null si no se encontro
-     */
-    public static MultiLayerPerceptron load(String path)
-    {
-        try
-        {
-            MultiLayerPerceptron net;
-
-            FileInputStream fin = new FileInputStream(path);
-            ObjectInputStream oos = new ObjectInputStream(fin);
-            net = (MultiLayerPerceptron) oos.readObject();
-            oos.close();
-
-            return net;
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-    }
-
-
 
     /**
      * @return Constante de aprendizaje

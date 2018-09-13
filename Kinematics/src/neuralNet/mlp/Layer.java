@@ -1,7 +1,9 @@
 package neuralNet.mlp;
 
 
-public class Layer
+import java.io.Serializable;
+
+public class Layer implements Serializable
 {
     public Neuron Neurons[];
     public int 		Length;

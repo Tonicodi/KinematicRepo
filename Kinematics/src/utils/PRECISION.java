@@ -1,9 +1,13 @@
 package utils;
-     public enum PRECISION{
-        LOW       (Math.toRadians(5)),
-        MEDIUM    (Math.toRadians(2.5)),
-        HIGH      (Math.toRadians(1)),
-        VERY_HIGH (Math.toRadians(0.5));
+
+import java.io.Serializable;
+
+public enum PRECISION implements Serializable{
+
+        LOW       (20),
+        MEDIUM    (30),
+        HIGH      (60),
+        VERY_HIGH (90);
 
          private final double value;
 

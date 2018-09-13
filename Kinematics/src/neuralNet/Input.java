@@ -1,121 +1,101 @@
 package neuralNet;
 
+import kinematics.ForwardK;
 import utils.Numerics;
 import utils.PRECISION;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.*;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
-public class Input {
+public class Input implements Serializable {
 
     double L[];// longitud del brazo
     PRECISION Precision;
     double Q1start,Q1end,Q2start,Q2end;
 
-    public Input(double[] l,PRECISION precision,boolean isRadian, double q1start, double q1end, double q2start, double q2end) {
+    public Input(double[] l,PRECISION precision, double q1start, double q1end, double q2start, double q2end) {
         L = l;
         Precision = precision;
-        Q1start   = (!isRadian)?q1start*PI/180.0:q1start;
-        Q1end     = (!isRadian)?q1end*PI/180.0:q1end;
-        Q2start   = (!isRadian)?q2start*PI/180.0:q2start;
-        Q2end     = (!isRadian)?q2end*PI/180.0:q2end;
+        Q1start   = q1start;
+        Q1end     = q1end;
+        Q2start   = q2start;
+        Q2end     = q2end;
+
+        util.Numerics.PRECISION = precision.getValue();
     }
 
-    public ArrayList<double[][]>[] getInputs(){
-        //almacenan los minimos y maximos, esto para normalizar
-        double Xmin=1000,Xmax=-1000,Ymin=1000,Ymax=-1000,Qmin,Qmax;
+    public ArrayList<double[]>[] getInputs(){
+        /**almacenan los minimos y maximos, esto para normalizar **/
+        double Ymin= 0 ,Ymax= 110,Zmin= -32,Zmax= 138;
 
-        //arreglo de ArraysList
-        ArrayList<double[][]> inputList[] = new ArrayList[2];
+        double Q1min= (Q1start<Q1end)?Q1start:Q1end;
+        double Q1max= (Q1start>Q1end)?Q1start:Q1end;
 
-        inputList[0] = new ArrayList<>();
-        inputList[1] = new ArrayList<>();
+        double Q2min= (Q2start<Q2end)?Q2start:Q2end;
+        double Q2max= (Q2start>Q2end)?Q2start:Q2end;
 
-        //obtener datos para entradas en EQ
-        Qmin = Collections.min(Arrays.asList(new Double[]{Q1start, Q1end, Q2start, Q2end}));
-        Qmax = Collections.max(Arrays.asList(new Double[]{Q1start, Q1end, Q2start, Q2end}));
+        double n = Precision.getValue();
+        double step1 = (Q1max-Q1min)/(n-1);
+        double step2 = (Q2max-Q2min)/(n-1);
 
-        //valores que almacenan las evaluaciones
-        double x,y;
+        ForwardK fk = new ForwardK(L);
+
+        ArrayList<double[]>[] IO_data = new ArrayList[2];
+
+        IO_data[0] = new ArrayList<>();
+        IO_data[1] = new ArrayList<>();
+
+        int decimals = 4;
         int c=0;
+        for(double i=Q1min;i<Q1max;i+=step1){
+            for(double j=Q2min;j<Q2max;j+=step2){
 
-        for(double i=Qmin;i<=Qmax;i+= Precision.getValue()){
-            x =  L[2] * cos(i) + L[1] * cos(i) ;
-            y =  L[2] * sin(i) + L[1] * sin(i)  + L[0];
+                System.out.println("Iteracion "+ (c+1));
 
-            Xmin = (x<Xmin)?x:Xmin;
-            Xmax = (x>Xmax)?x:Xmax;
-            Ymin = (y<Ymin)?y:Ymin;
-            Ymax = (y>Ymax)?y:Ymax;
+                double angles[] = {0, Numerics.justNdecimals( i , decimals),  Numerics.justNdecimals( j ,decimals) };
 
-            inputList[0].add(new double[][]{ {x},{i} });
-            inputList[1].add(new double[][]{ {y},{i} });
-            System.out.println("value "+c+" X "+x+" Y "+y+" Q degree : "+Math.toDegrees(i)+" Q radian "+i);
-            c++;
+                double angle_normalized[] = {  Numerics.justNdecimals( Input.Normalize( angles[1] , Q1min,Q1max) , decimals+2)  , Numerics.justNdecimals(  Input.Normalize( angles[2] , Q2min,Q2max) ,decimals+2)   };
+
+                IO_data[1].add( angle_normalized);// agregando la salida (angulos normalizados)
+
+                System.out.println("Angulo         " + Arrays.toString(angles) +"\t Normalizado "+Arrays.toString(angle_normalized) );
+
+                double coord[] = fk.getCartesian(angles,false);
+
+                coord[1] =  Numerics.justNdecimals(coord[1],decimals);
+                coord[2] =  Numerics.justNdecimals(coord[2],decimals);
+
+                double coord_normalized[] = {  Numerics.justNdecimals( Input.Normalize( coord[1] , Ymin,Ymax) , decimals+2)  , Numerics.justNdecimals(  Input.Normalize( coord[2] , Zmin,Zmax) ,decimals+2)   };
+                IO_data[0].add( coord_normalized); // coordenada Y Z
+
+                System.out.println("Fk Coordenadas "+Arrays.toString(coord)+"\t Normalizado "+ Arrays.toString(coord_normalized));
+
+                System.out.println();
+                c++;
+            }
         }
-        //guardar el minimo y maximo global en la primera posicion del arreglo de entradas
 
-        inputList[0].add(0,new double[][]{ {Xmax,Xmin} , {Qmax,Qmin} });
-        inputList[1].add(0,new double[][]{ {Ymax,Ymin} , {Qmax,Qmin} });
-
-        System.out.println("Xmax "+ Xmax+" Xmin "+Xmin);
         System.out.println("Ymax "+ Ymax+" Ymin "+Ymin);
-        System.out.println("Global Q Max "+Qmax+" Global Q Min "+Qmin);
+        System.out.println("Zmax "+ Zmax+" Zmin "+Zmin);
 
-        return inputList;
+        System.out.println("Q1max "+ Q1max+" Q1min "+Q1min);
+        System.out.println("Q2max "+ Q2max+" Q2min "+Q2min);
+
+        return IO_data;
     }
 
-    public ArrayList<double[][]> normalizeInputs(ArrayList<double[][]> inputs,double new_min,double new_max){
-
-        ArrayList<double[][]> normalizedInputs = new ArrayList<>();
-
-        //obtener los minimos y maximos
-        double Vmin,Vmax,Qmin,Qmax;
-        Vmax  = inputs.get(0)[0][0];
-        Vmin  = inputs.get(0)[0][1];
-
-        Qmax  = inputs.get(0)[1][0];
-        Qmin  = inputs.get(0)[1][1];
-
-        //limpiar de las entradas
-        inputs.remove(0);
-
-        double Vnormalized,QNormalized;
-
-        for(int i=0;i<inputs.size();i++){
-            Vnormalized  =  Normalize( inputs.get(i)[0][0] , Vmin,Vmax ,new_min,new_max);
-
-            //QNormalized =  Normalize( inputs.get(i)[1][0] , Qmin,Qmax,new_min,new_max);
-
-            QNormalized = inputs.get(i)[1][0];
-
-            normalizedInputs.add( new double[][]{ {Vnormalized} , {QNormalized} });
-
-            System.out.println("Value "+i+" normalized  "+Vnormalized + " Q normalized "+QNormalized);
-        }
-        return normalizedInputs;
-    }
-
-    public static boolean saveInputs(ArrayList<double[][]> inputs,String path){
+    public static boolean saveFile(ArrayList<double[]> inputs,String path){
         //escribir en el archivo .dat ubicado en / del proyecto
         try {
-            PrintWriter f_input = new PrintWriter(new FileWriter("input_"+path));
-            PrintWriter f_output = new PrintWriter(new FileWriter("output_"+path));
-
+            PrintWriter fileData = new PrintWriter(new FileWriter(path));
             for(int i = 0; i < inputs.size(); ++i) {
-
-                f_input.println( inputs.get(i)[0][0]);
-                f_output.println(inputs.get(i)[1][0]);
+                fileData.println( inputs.get(i)[0]+","+inputs.get(i)[1] );
             }
-            f_input.close();
-            f_output.close();
+            fileData.close();
             return true;
         } catch (IOException var16) {
             var16.printStackTrace();
@@ -146,15 +126,15 @@ public class Input {
 
 
 
-    public static double Normalize(double value, double min, double max,double new_min,double new_max)
+    public static double Normalize(double value, double min, double max)
     {
-        return (value - min) / (max - min)*(new_max-new_min)+new_min;
+        return (value - min) / (max - min);
     }
 
-    public static double[] Normalize(double values[],double min,double max,double new_min,double new_max){
+    public static double[] Normalize(double values[],double min,double max){
         double data[] = new double[values.length];
         for (int i=0;i<values.length;i++)
-            data[i] = Normalize(values[i],min,max,new_min,new_max);
+            data[i] = Normalize(values[i],min,max);
         return data;
     }
 
