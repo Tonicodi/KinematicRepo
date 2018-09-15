@@ -8,6 +8,11 @@ import java.io.Serializable;
 public class HyperbolicTransfer implements TransferFunction,Serializable
 {
 
+    /**
+     * Evalua la funcion tangente hiperbolica
+     * @param value Valor de entrada
+     * @return
+     */
     @Override
     public double evaluate(double value)
     {
@@ -21,6 +26,11 @@ public class HyperbolicTransfer implements TransferFunction,Serializable
     }
     */
 
+    /**
+     * Evalua la derivada de la tangente hiperbolica
+     * @param value Valor de entrada
+     * @return
+     */
     @Override
     public double evaluateDerivate(double value)
     {

@@ -9,6 +9,10 @@ public class Neuron implements Serializable
     public double		Bias;
     public double		Delta;
 
+    /**
+     * Inicaliza los Pesos,Bias y valores de manera aleatoria
+     * @param prevLayerSize
+     */
     public Neuron(int prevLayerSize)
     {
         Weights = new double[prevLayerSize];

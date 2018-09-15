@@ -17,6 +17,17 @@ public class Input implements Serializable {
     PRECISION Precision;
     double Q1start,Q1end,Q2start,Q2end;
 
+    /**
+     * Constructo de Input recibe parametros para generar el espacio de trabajo
+     * Se establecen los rangos de trabajo del brazo ademas de el tipo de precision
+     * con el cual se va a trabajar
+     * @param l dimensiones del brazo
+     * @param precision Enumeracion con los diferentes precisiones disponibles
+     * @param q1start angulo q1 de inicio del brazo
+     * @param q1end angulo q1 de fin del brazo
+     * @param q2start angulo q2 de fin del antebrazo
+     * @param q2end angulo q2 de fin del antebrazo
+     */
     public Input(double[] l,PRECISION precision, double q1start, double q1end, double q2start, double q2end) {
         L = l;
         Precision = precision;
@@ -28,6 +39,16 @@ public class Input implements Serializable {
         util.Numerics.PRECISION = precision.getValue();
     }
 
+    /**
+     * Genera las entradas retornando un arreglo de listas de tipo double[]
+     * Encuentra los minimos y maximos de cada una de las articulaciones
+     * Encuentra los minimos y maximos de las coordenadas para el espacio de trabajo particular
+     * Genera los pasos para cada uno de los bucles que recorren las articulaciones
+     * Utiliza las ecuaciones de cinematica directa para evaluar cada uno de los angulos
+     * El resultado de las evaluaciones de cinematica directa se normaliza
+     * Se guarda en el arreglo de lista cada uno de los datos , Entrada y Salida que sera enviados a la red
+     * @return
+     */
     public ArrayList<double[]>[] getInputs(){
         /**almacenan los minimos y maximos, esto para normalizar **/
         double Ymin= 0 ,Ymax= 110,Zmin= -32,Zmax= 138;
@@ -88,6 +109,12 @@ public class Input implements Serializable {
         return IO_data;
     }
 
+    /**
+     * Guarda una lista de double[] que son ya sea datos de entrada o de salida
+     * @param inputs
+     * @param path
+     * @return
+     */
     public static boolean saveFile(ArrayList<double[]> inputs,String path){
         //escribir en el archivo .dat ubicado en / del proyecto
         try {
@@ -103,6 +130,11 @@ public class Input implements Serializable {
         }
     }
 
+    /**
+     * Carga una lista de double[] que son ya sea datos de entrada o de salida
+     * @param path
+     * @return
+     */
     public static ArrayList<double[]> loadFile(String path){
         //escribir en el archivo .dat ubicado en / del proyecto
 
@@ -125,12 +157,25 @@ public class Input implements Serializable {
     }
 
 
-
+    /**
+     * Funcion que normaliza en un rango de [0,1]
+     * @param value valor a normalizar
+     * @param min
+     * @param max
+     * @return valor normalizado
+     */
     public static double Normalize(double value, double min, double max)
     {
         return (value - min) / (max - min);
     }
 
+    /**
+     * Normaliza un arreglo de elementos en el rango de [0,1]
+     * @param values
+     * @param min
+     * @param max
+     * @return
+     */
     public static double[] Normalize(double values[],double min,double max){
         double data[] = new double[values.length];
         for (int i=0;i<values.length;i++)
@@ -138,11 +183,25 @@ public class Input implements Serializable {
         return data;
     }
 
+    /**
+     * Desnormaliza un elemento dentro de los parametros min y max establecidos
+     * @param value
+     * @param min
+     * @param max
+     * @return
+     */
     public static double DeNormalize(double value, double min, double max)
     {
         return value * (max - min) + min;
     }
 
+    /**
+     * Desnormaliza un arreglo de elementos dentro de los parametros min y max
+     * @param values
+     * @param min
+     * @param max
+     * @return
+     */
     public static double[] DeNormalize(double values[],double min,double max){
         double data[] = new double[values.length];
         for (int i=0;i<values.length;i++)

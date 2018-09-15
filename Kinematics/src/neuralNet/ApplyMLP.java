@@ -26,6 +26,14 @@ public class ApplyMLP implements Serializable {
     double Ymin= 0 ,Ymax= 110,Zmin= -32,Zmax= 138;
 
 
+    /**
+     * Constructor de ApplyMLP recibe parametros para crear la red neuronal
+     * @param layers arreglo de enteros donde se establecen las capas de la red neuronal
+     * @param learningRate factor de aprendizaje
+     * @param fun funcion de transferencia
+     * @param inputs entradas que se usaran para entrenamiento
+     * @param outputs target u objetivo de entrenamiento
+     */
     public ApplyMLP(int[] layers, double learningRate, TransferFunction fun,ArrayList<double[]> inputs,ArrayList<double[]> outputs){
 
         mlp = new MultiLayerPerceptron(layers,learningRate,fun);
@@ -37,19 +45,24 @@ public class ApplyMLP implements Serializable {
         this.NN_target     = outputs;
     }
 
+    /**
+     * Retorna la precision que se ha establecido para generar los datos de entrenamiento
+     * @return
+     */
     public PRECISION getPrecision() {
         return precision;
     }
 
+    /**
+     * Establece la precision para generar los datos de entrenamiento
+     * @param precision
+     */
     public void setPrecision(PRECISION precision) {
         this.precision = precision;
     }
 
-
-
-
     /**
-     * Carga una red MLP del archivo
+     * Carga la red MLP del archivo
      * @param path Ruta de la cual se carga la red MLP
      * @return La red cargada o null si no se encontro
      */
@@ -72,6 +85,11 @@ public class ApplyMLP implements Serializable {
         }
     }
 
+    /**
+     * Guarda la red ya entrenada con las configuraciones establecidas
+     * @param path ruta donde se guardara la red neuronal
+     * @return el estado verdadero o falso si se pudo guardar
+     */
     public boolean saveMLP(String path){
         try
         {
@@ -88,6 +106,14 @@ public class ApplyMLP implements Serializable {
 
     }
 
+    /**
+     * Entrenar la red neuronal se establecen el numero de epocas
+     * y se evaluan los valores la cantidad de epocas establecidas
+     * se muestra el error generado por cada epoca
+     * Guarda en un archivo de texto el resultado de el error para cada iteracion
+     * @param epoch
+     * @return
+     */
     public double train(int epoch){
         Numerics.EPOCH = epoch;
         epochs = epoch;
@@ -117,6 +143,17 @@ public class ApplyMLP implements Serializable {
 
     }
 
+    /**
+     * Funcion que ejecuta la red neuronal dado una coordenada de entrada establecida
+     * evalua si la coordenada es valida y en caso de que no lo sea retorna null
+     * Encuentra el valor del angulo de la base a traves de la tangente inversa doble
+     * Se normalizan las entradas de la red para ser procesadas
+     * Se llama a la funcion que ejecuta la red neuronal y se obtienen los angulos del brazo y antebrazo
+     * Se denormalizan los angulos obtenidos de la red neuronal
+     * se retorna los angulos obtenidos redondeados a cantidades legibles
+     * @param test
+     * @return
+     */
     public double[] execute(double[] test){
         if(Numerics.isValidCoord(test)){
 
@@ -138,38 +175,34 @@ public class ApplyMLP implements Serializable {
         }
     }
 
-
-    public static double[][] getArrayInputs(ArrayList<double[][]> inputs){
-        double data[][] = new double[inputs.size()][inputs.get(0)[0].length];
-        for (int i=0;i<inputs.size();i++){
-            data[i] = inputs.get(i)[0];
-            //System.out.println("Input "+Arrays.toString(data[i]));
-        }
-        return data;
-    }
-
-    public static double[][] getArrayOutputs(ArrayList<double[][]> inputs){
-        double data[][] = new double[inputs.size()][inputs.get(0)[0].length];
-        for (int i=0;i<inputs.size();i++){
-            data[i] = inputs.get(i)[1];
-            //System.out.println("Ouput "+Arrays.toString(data[i]));
-        }
-        return data;
-    }
-
-
+    /**
+     * Retorna el arreglo de enteros que guarda la cantidad de capas de la red
+     * @return
+     */
     public int[] getLayers() {
         return layers;
     }
 
+    /**
+     * Retorna el factor de aprendizaje usado para entrenamiento
+     * @return
+     */
     public double getLearningRate() {
         return learningRate;
     }
 
+    /**
+     * Retorna el ultimo error de entrenamiento generado
+     * @return
+     */
     public double getErrorTrain() {
         return errorTrain;
     }
 
+    /**
+     * Retorna la ultima cantidad de epocas de entrenamiento usadas
+     * @return
+     */
     public int getEpochs() {
         return epochs;
     }

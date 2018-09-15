@@ -10,6 +10,11 @@ public class Main{
 
     public static void main(String[] args){
 
+
+        /**
+         * Pruebas sobre cinematica directa e inversa
+         */
+
         double angulos[] = new double[3];
         double[] coord_cartesian = new double[3];
         double L[]  = new double[]{28,50,60};

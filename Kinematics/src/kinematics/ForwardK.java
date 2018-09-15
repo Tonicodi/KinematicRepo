@@ -27,6 +27,11 @@ public class ForwardK {
     private double Q[];
     private double L[];
 
+    /**
+     * Constructor de cinematica directa
+     * Recibe las dimensiones del brazo
+     * @param l
+     */
     public ForwardK(double[] l) {
         L = l;
     }
@@ -38,9 +43,6 @@ public class ForwardK {
      * @param q
      * @return
      */
-
-    
-
     public double[] getCartesian(double[] q,boolean isRadian) {
         Q = q;
 
