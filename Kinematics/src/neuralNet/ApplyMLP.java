@@ -21,7 +21,7 @@ public class ApplyMLP implements Serializable {
     ArrayList<double[]> NN_target;
     ArrayList<double[]> NN_input;
     PRECISION precision;
-
+    public  boolean round=true;
 
     double Ymin= 0 ,Ymax= 110,Zmin= -32,Zmax= 138;
 
@@ -134,6 +134,7 @@ public class ApplyMLP implements Serializable {
                 c++;
             }
             errorTrain = error;
+            Numerics.ERROR = errorTrain;
             fout.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -168,7 +169,8 @@ public class ApplyMLP implements Serializable {
             //hago un vector donde esten todos los angulos de normalizados
             double angles[] = {  Q1, Angles_ANN[0],Angles_ANN[1]  };
 
-            return Numerics.roundDecimals( angles );
+            return  (round==true)?Numerics.roundDecimals( angles ):angles;
+            //return angles;
         }else{
             //en caso de que no sea valido retorna null
             return null;
